@@ -1167,21 +1167,29 @@ const getTopicSpecificImage = (code, topicBadge) => {
 };
 
 function DrillContent({ params }) {
-  const resolvedParams = use(params);
   const router = useRouter();
   const searchParams = useSearchParams();
   const moduleKey = searchParams.get('module') || 'mekanika';
 
-  const rawQId = resolvedParams?.questionId || '1';
-  const parsedNum = parseInt(rawQId, 10);
-  const qId = isNaN(parsedNum) || parsedNum < 1 ? '1' : parsedNum > 10 ? '10' : String(parsedNum);
-
+  const [qId, setQId] = useState('1');
   const [activeQuestionsMap, setActiveQuestionsMap] = useState({});
   const [userAnswers, setUserAnswers] = useState({});
   const [timeLeft, setTimeLeft] = useState(899); // 14:59
   const [showStreakModal, setShowStreakModal] = useState(false);
   const [streakCount, setStreakCount] = useState(7);
   const [isSubmitted, setIsSubmitted] = useState(false);
+
+  // Safely unwrap params without SSR throwing
+  useEffect(() => {
+    if (params) {
+      Promise.resolve(params).then((p) => {
+        const raw = p?.questionId || '1';
+        const num = parseInt(raw, 10);
+        const safe = isNaN(num) || num < 1 ? '1' : num > 10 ? '10' : String(num);
+        setQId(safe);
+      });
+    }
+  }, [params]);
 
   // Helper to generate 10 COMPLETELY DISTINCT DYNAMIC questions per attempt!
   const generateFreshDynamicQuizSet = (mKey) => {
@@ -1261,6 +1269,12 @@ function DrillContent({ params }) {
         }
       }
 
+      // Load submission status for this module session
+      const savedSubmitted = sessionStorage.getItem(`astrolearn-quiz-submitted-${moduleKey}`);
+      if (savedSubmitted === 'true') {
+        setIsSubmitted(true);
+      }
+
       // Load streak count
       const savedStreak = localStorage.getItem('astrolearn_streak');
       if (savedStreak) {
@@ -1309,6 +1323,7 @@ function DrillContent({ params }) {
     if (typeof window !== 'undefined') {
       sessionStorage.removeItem(`astrolearn-active-quiz-set-${moduleKey}`);
       sessionStorage.removeItem(`astrolearn-quiz-user-answers-${moduleKey}`);
+      sessionStorage.removeItem(`astrolearn-quiz-submitted-${moduleKey}`);
     }
     setUserAnswers({});
     setIsSubmitted(false);
@@ -1379,6 +1394,7 @@ function DrillContent({ params }) {
         savedMastery[topicName].medium = Math.max(0, scorePercent - 15);
         localStorage.setItem('astrolearn-topic-mastery', JSON.stringify(savedMastery));
 
+        sessionStorage.setItem(`astrolearn-quiz-submitted-${moduleKey}`, 'true');
         window.dispatchEvent(new Event('storage'));
       } catch (e) {
         console.error('Error saving quiz completion stats:', e);
