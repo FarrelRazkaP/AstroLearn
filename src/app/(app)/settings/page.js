@@ -156,9 +156,6 @@ export default function SettingsPage() {
               <h1 className="font-display-lg text-display-lg text-white font-bold tracking-tight">
                 {fullName}
               </h1>
-              <p className="font-code-md text-xs text-secondary font-bold">
-                @{fullName.toLowerCase().replace(/[^a-z0-9]/g, '') || 'astronomer'}
-              </p>
             </div>
 
             {/* Top Action Buttons (Ganti Profile & Logout) */}
@@ -298,9 +295,6 @@ export default function SettingsPage() {
                 <label className="font-code-md text-xs text-on-surface-variant uppercase tracking-wider">
                   Nama Lengkap Astronomer (Dapat Diubah)
                 </label>
-                <span className="font-code-md text-[10px] text-secondary font-bold">
-                  Handle: @{fullName.toLowerCase().replace(/[^a-z0-9]/g, '') || 'astronomer'}
-                </span>
               </div>
               <input
                 type="text"

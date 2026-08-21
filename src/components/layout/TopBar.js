@@ -250,8 +250,8 @@ export default function TopBar() {
                         <span className="font-headline-md text-xs font-bold text-white group-hover:text-primary transition-colors">
                           {usr.fullName}
                         </span>
-                        <span className="font-code-md text-[10px] text-on-surface-variant">
-                          @{usr.username || 'user'} • Rank {(usr.points || 0) > 0 ? '#' + (usr.rank || 1) : '-'}
+                        <span className="font-code-md text-[10px] text-on-surface-variant font-bold">
+                          Rank {(usr.points || 0) > 0 ? '#' + (usr.rank || 1) : '-'}
                         </span>
                       </div>
                     </div>

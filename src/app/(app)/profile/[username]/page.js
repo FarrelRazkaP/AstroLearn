@@ -165,9 +165,6 @@ export default function PublicProfilePage() {
               <h1 className="font-display-lg text-3xl md:text-4xl text-white font-extrabold tracking-tight">
                 {profile.fullName}
               </h1>
-              <p className="font-code-md text-sm text-secondary font-bold">
-                @{ (profile.username || (profile.fullName ? profile.fullName.toLowerCase().replace(/[^a-z0-9]/g, '') : 'astronomer')).replace(/@.*/, '') }
-              </p>
             </div>
 
             {/* Share Profile Link Button */}
