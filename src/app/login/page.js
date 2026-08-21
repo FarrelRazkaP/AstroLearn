@@ -48,29 +48,13 @@ export default function LoginPage() {
         if (match && match.password === password) {
           const { password: _, ...safeUser } = match;
           loggedUser = safeUser;
-        } else if (cleanIdent === 'astronot' || cleanIdent === 'astronot@astrolearn.com') {
-          if (password === 'password123') {
-            loggedUser = {
-              id: 'usr_astronot',
-              fullName: 'Penjelajah Kosmik',
-              username: 'astronot',
-              email: 'astronot@astrolearn.com',
-              role: 'pemula',
-              points: 0,
-              level: 1,
-              streak: 0,
-              badges: [],
-            };
-          } else {
-            throw new Error('Kata sandi salah!');
-          }
         } else {
-          throw new Error(apiErr.message || 'Identitas atau kata sandi tidak ditemukan!');
+          throw new Error(apiErr.message || 'Email/Username atau kata sandi salah!');
         }
       }
 
       if (!loggedUser) {
-        throw new Error('Identitas atau kata sandi tidak cocok!');
+        throw new Error('Email/Username atau kata sandi tidak cocok!');
       }
 
       // Save authenticated user session
@@ -138,7 +122,7 @@ export default function LoginPage() {
                 required
                 value={identity}
                 onChange={(e) => setIdentity(e.target.value)}
-                placeholder="astronot atau neil@apollo.space"
+                placeholder="neil@apollo.space"
                 className="w-full bg-surface-container-lowest/80 border border-white/10 rounded-xl pl-10 pr-4 py-3 text-white text-body-md focus:border-secondary focus:ring-1 focus:ring-secondary transition-all outline-none"
               />
             </div>
@@ -192,17 +176,10 @@ export default function LoginPage() {
           </button>
         </form>
 
-        {/* Demo Credentials Info Box */}
-        <div className="w-full mt-6 p-3 rounded-xl bg-surface-container-high/60 border border-white/10 text-xs font-code-md text-on-surface-variant flex flex-col gap-1">
-          <span className="text-secondary font-bold">🔑 Demo Akun Default AstroLearn:</span>
-          <span>• Username: <code className="text-white">astronot</code></span>
-          <span>• Password: <code className="text-white">password123</code></span>
-        </div>
-
         {/* Footer Link */}
-        <p className="mt-6 font-body-md text-sm text-on-surface-variant">
+        <p className="mt-8 font-body-md text-sm text-on-surface-variant">
           Belum punya akun?{' '}
-          <Link href="/signup" className="text-secondary font-semibold hover:underline">
+          <Link href="/signup" className="text-secondary font-semibold hover:underline font-bold">
             Daftar sekarang
           </Link>
         </p>

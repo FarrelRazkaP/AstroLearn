@@ -37,7 +37,7 @@ export default function OnboardingPage() {
   const handleContinue = () => {
     if (selectedRole) {
       localStorage.setItem('astrolearn-role', selectedRole);
-      router.push('/dashboard');
+      router.push(`/signup?role=${selectedRole}`);
     }
   };
 
@@ -66,7 +66,7 @@ export default function OnboardingPage() {
             Selamat Datang!
           </h1>
           <p className="font-body-lg text-body-lg text-on-surface-variant max-w-md mx-auto">
-            Pilih jalur belajarmu untuk menyesuaikan instrumen dan materi observasi di AstroLearn.
+            Pilih jalur belajarmu untuk menyesuaikan instrumen dan membuat akun AstroLearn milikmu.
           </p>
         </header>
 
@@ -85,7 +85,7 @@ export default function OnboardingPage() {
                 aria-checked={isSelected}
                 onClick={() => setSelectedRole(role.id)}
                 className={`role-card group rounded-xl p-lg flex flex-col items-center justify-center text-center cursor-pointer outline-none transition-all duration-300 ${
-                  isSelected ? 'selected' : ''
+                  isSelected ? 'selected border-2 border-secondary bg-secondary-container/40' : 'bg-surface-container/40 border border-white/10'
                 }`}
               >
                 <div className="icon-container w-20 h-20 rounded-full bg-surface-container/50 flex items-center justify-center mb-md text-secondary border border-white/5">
@@ -93,7 +93,7 @@ export default function OnboardingPage() {
                     {role.icon}
                   </span>
                 </div>
-                <h2 className="font-headline-md text-headline-md text-on-surface mb-xs">
+                <h2 className="font-headline-md text-headline-md text-on-surface mb-xs font-bold">
                   {role.title}
                 </h2>
                 <p className="font-body-md text-body-md text-on-surface-variant opacity-80 group-hover:opacity-100 transition-opacity">
@@ -110,8 +110,8 @@ export default function OnboardingPage() {
           {selectedRole && (
             <div className="mb-md px-4 py-1.5 rounded-full bg-surface-container border border-tertiary-fixed-dim/30 flex items-center gap-2 transition-all duration-300">
               <div className="w-2 h-2 rounded-full bg-primary shadow-[0_0_8px_#c1c4e6]" />
-              <span className="font-label-sm text-label-sm text-primary tracking-widest uppercase">
-                Target Acquired
+              <span className="font-label-sm text-label-sm text-primary tracking-widest uppercase font-bold">
+                Jalur Dipilih: {roles.find((r) => r.id === selectedRole)?.title}
               </span>
             </div>
           )}
@@ -119,13 +119,13 @@ export default function OnboardingPage() {
           <button
             onClick={handleContinue}
             disabled={!selectedRole}
-            className={`w-full py-3 px-lg rounded-xl font-headline-md text-headline-md transition-all duration-300 flex items-center justify-center gap-2 group relative overflow-hidden ${
+            className={`w-full py-3 px-lg rounded-xl font-headline-md text-headline-md font-bold transition-all duration-300 flex items-center justify-center gap-2 group relative overflow-hidden ${
               selectedRole
                 ? 'bg-secondary text-on-secondary shadow-[0_0_25px_rgba(201,191,253,0.3)] hover:bg-secondary-fixed cursor-pointer'
                 : 'bg-surface-variant text-on-surface-variant opacity-50 cursor-not-allowed'
             }`}
           >
-            <span className="relative z-10">Lanjutkan</span>
+            <span className="relative z-10">Lanjutkan ke Pendaftaran Akun</span>
             <span className="material-symbols-outlined relative z-10 group-hover:translate-x-1 transition-transform">
               arrow_forward
             </span>
