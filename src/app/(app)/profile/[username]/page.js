@@ -166,7 +166,7 @@ export default function PublicProfilePage() {
                 {profile.fullName}
               </h1>
               <p className="font-code-md text-sm text-secondary font-bold">
-                @{profile.username || 'astronomer'}
+                @{ (profile.username || (profile.fullName ? profile.fullName.toLowerCase().replace(/[^a-z0-9]/g, '') : 'astronomer')).replace(/@.*/, '') }
               </p>
             </div>
 

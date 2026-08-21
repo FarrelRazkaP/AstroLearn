@@ -11,7 +11,6 @@ const DEFAULT_AVATAR =
 export default function SettingsPage() {
   const [userId, setUserId] = useState('');
   const [fullName, setFullName] = useState('Pengguna AstroLearn');
-  const [email, setEmail] = useState('user@astrolearn.com');
   const [bio, setBio] = useState('');
   const [avatarUrl, setAvatarUrl] = useState('');
   const [userStats, setUserStats] = useState({ points: 0, streak: 0, level: 1 });
@@ -28,7 +27,6 @@ export default function SettingsPage() {
         const u = JSON.parse(rawUser);
         if (u.id) setUserId(u.id);
         if (u.fullName || u.name) setFullName(u.fullName || u.name);
-        if (u.email) setEmail(u.email);
         if (u.bio) setBio(u.bio);
         if (u.avatarUrl) setAvatarUrl(u.avatarUrl);
       }
@@ -49,15 +47,17 @@ export default function SettingsPage() {
     setSavedSuccess(false);
 
     try {
+      const cleanHandle = fullName.toLowerCase().replace(/[^a-z0-9]/g, '');
+
       // 1. Save to Client LocalStorage Session
       const rawUser = localStorage.getItem('astrolearn-user');
       const currentUser = rawUser ? JSON.parse(rawUser) : {};
       const updatedUser = {
         ...currentUser,
-        id: userId || currentUser.id || 'usr_01',
+        id: userId || currentUser.id || 'usr_' + Date.now(),
         fullName,
         name: fullName,
-        email,
+        username: cleanHandle || currentUser.username || 'astronomer',
         bio,
         avatarUrl,
       };
@@ -68,7 +68,11 @@ export default function SettingsPage() {
       // Sync with local registered users registry
       try {
         const localReg = JSON.parse(localStorage.getItem('astrolearn-registered-users') || '[]');
-        const updatedReg = localReg.map((u) => (u.id === updatedUser.id || u.email === updatedUser.email ? { ...u, ...updatedUser } : u));
+        const updatedReg = localReg.map((u) =>
+          u.id === updatedUser.id || (u.email && u.email === updatedUser.email)
+            ? { ...u, ...updatedUser }
+            : u
+        );
         if (!updatedReg.some((u) => u.id === updatedUser.id)) {
           updatedReg.push(updatedUser);
         }
@@ -148,9 +152,14 @@ export default function SettingsPage() {
 
         <div className="flex flex-col gap-2 text-center md:text-left flex-1">
           <div className="flex flex-col md:flex-row items-center md:items-baseline justify-between gap-4">
-            <h1 className="font-display-lg text-display-lg text-white font-bold tracking-tight">
-              {fullName}
-            </h1>
+            <div>
+              <h1 className="font-display-lg text-display-lg text-white font-bold tracking-tight">
+                {fullName}
+              </h1>
+              <p className="font-code-md text-xs text-secondary font-bold">
+                @{fullName.toLowerCase().replace(/[^a-z0-9]/g, '') || 'astronomer'}
+              </p>
+            </div>
 
             {/* Top Action Buttons (Ganti Profile & Logout) */}
             <div className="flex items-center gap-2">
@@ -177,7 +186,7 @@ export default function SettingsPage() {
           <div className="flex flex-wrap items-center justify-center md:justify-start gap-3 font-body-md text-on-surface-variant">
             <span>Amateur Astronomer</span>
             <span className="text-white/30">•</span>
-            <span className="text-secondary font-semibold">Level {userStats.level || 3}</span>
+            <span className="text-secondary font-semibold">Level {userStats.level || 1}</span>
           </div>
 
           <div className="flex flex-wrap items-center justify-center md:justify-start gap-2 mt-2">
@@ -187,7 +196,7 @@ export default function SettingsPage() {
             </span>
             <span className="px-3 py-1 rounded-full bg-surface-container/60 border border-white/10 font-code-md text-xs text-on-surface-variant flex items-center gap-1.5">
               <span className="material-symbols-outlined text-sm">verified_user</span>
-              Akun Terverifikasi Database
+              Akun Terverifikasi
             </span>
           </div>
         </div>
@@ -210,7 +219,7 @@ export default function SettingsPage() {
                   <span className="material-symbols-outlined text-secondary">menu_book</span>
                   <span className="font-body-md text-on-surface-variant">Level Player</span>
                 </div>
-                <span className="font-headline-md text-headline-md font-bold text-white">Level {userStats.level || 3}</span>
+                <span className="font-headline-md text-headline-md font-bold text-white">Level {userStats.level || 1}</span>
               </div>
 
               <div className="glass-panel rounded-lg p-3 flex justify-between items-center">
@@ -226,7 +235,7 @@ export default function SettingsPage() {
                   <span className="material-symbols-outlined text-accent_gold">star</span>
                   <span className="font-body-md text-on-surface-variant">Total Poin XP</span>
                 </div>
-                <span className="font-headline-md text-headline-md font-bold text-white">{(userStats.points || 1250).toLocaleString()} Poin</span>
+                <span className="font-headline-md text-headline-md font-bold text-white">{(userStats.points || 0).toLocaleString()} Poin</span>
               </div>
             </div>
           </div>
@@ -283,17 +292,23 @@ export default function SettingsPage() {
               Informasi Akun & Profil
             </h2>
 
-            {/* Nama Lengkap */}
+            {/* Nama Lengkap (Dapat diubah kapan saja!) */}
             <div className="flex flex-col gap-1.5">
-              <label className="font-code-md text-xs text-on-surface-variant uppercase tracking-wider">
-                Nama Lengkap
-              </label>
+              <div className="flex justify-between items-center">
+                <label className="font-code-md text-xs text-on-surface-variant uppercase tracking-wider">
+                  Nama Lengkap Astronomer (Dapat Diubah)
+                </label>
+                <span className="font-code-md text-[10px] text-secondary font-bold">
+                  Handle: @{fullName.toLowerCase().replace(/[^a-z0-9]/g, '') || 'astronomer'}
+                </span>
+              </div>
               <input
                 type="text"
                 required
                 value={fullName}
                 onChange={(e) => setFullName(e.target.value)}
-                className="bg-surface-container-lowest/80 border border-white/10 rounded-xl px-4 py-2.5 text-white text-body-md focus:border-secondary outline-none transition-colors"
+                placeholder="Masukkan Nama Lengkap Baru Anda..."
+                className="bg-surface-container-lowest/80 border border-white/10 rounded-xl px-4 py-3 text-white text-body-md focus:border-secondary outline-none transition-colors font-bold"
               />
             </div>
 
@@ -306,6 +321,7 @@ export default function SettingsPage() {
                 rows={3}
                 value={bio}
                 onChange={(e) => setBio(e.target.value)}
+                placeholder="Tulis deskripsi singkat atau minat astronomi Anda..."
                 className="bg-surface-container-lowest/80 border border-white/10 rounded-xl px-4 py-2.5 text-white text-body-md focus:border-secondary outline-none transition-colors resize-none"
               />
             </div>
@@ -314,7 +330,7 @@ export default function SettingsPage() {
               {savedSuccess && (
                 <span className="text-accent_green text-sm font-semibold animate-fadeIn flex items-center gap-1">
                   <span className="material-symbols-outlined text-base">check_circle</span>
-                  Profil berhasil tersimpan di Database!
+                  Nama & Profil Baru Berhasil Tersimpan!
                 </span>
               )}
               <button
@@ -322,7 +338,7 @@ export default function SettingsPage() {
                 disabled={isSaving}
                 className="ml-auto px-6 py-2.5 rounded-xl bg-secondary text-on-secondary font-bold hover:brightness-110 active:scale-95 transition-all shadow-lg cursor-pointer disabled:opacity-50"
               >
-                {isSaving ? 'Menyimpan...' : 'Simpan Perubahan Profil'}
+                {isSaving ? 'Menyimpan...' : 'Simpan Nama & Profil Baru'}
               </button>
             </div>
           </form>
@@ -330,25 +346,20 @@ export default function SettingsPage() {
           {/* Keamanan Card */}
           <div className="glass-panel rounded-xl p-md md:p-lg flex flex-col gap-md border border-white/10">
             <h2 className="font-headline-md text-headline-md text-white font-bold border-b border-outline-variant/30 pb-2">
-              Keamanan
+              Keamanan Akun
             </h2>
 
             <div className="flex flex-col gap-4">
-              {/* Ubah Password */}
               <div className="glass-card rounded-xl p-4 flex justify-between items-center">
                 <div>
-                  <h3 className="font-body-md font-semibold text-white">Ubah Password</h3>
+                  <h3 className="font-body-md font-semibold text-white">Status Keamanan Password</h3>
                   <p className="font-body-md text-xs text-on-surface-variant">
-                    Ganti password Anda secara berkala untuk keamanan.
+                    Password Anda dilindungi enkripsi kriptografi SHA-256 secara aman.
                   </p>
                 </div>
-                <button
-                  type="button"
-                  onClick={() => alert('Fitur ubah password aman aktif!')}
-                  className="px-4 py-2 rounded-lg border border-white/20 text-white hover:bg-white/10 transition-colors text-sm font-semibold cursor-pointer"
-                >
-                  Update
-                </button>
+                <span className="px-3 py-1 rounded-full bg-accent_green/20 text-accent_green text-xs font-bold border border-accent_green/30">
+                  Terenkripsi SHA-256
+                </span>
               </div>
             </div>
           </div>
