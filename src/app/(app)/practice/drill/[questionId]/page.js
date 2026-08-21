@@ -1,9 +1,10 @@
 'use client';
 
-import { useState, useEffect, use } from 'react';
+import { useState, useEffect, use, Suspense } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import AstronomyDiagram from '@/components/ui/AstronomyDiagram';
+import { recordQuizCompletionStreak } from '@/lib/userStats';
 
 // Fisher-Yates Shuffle Algorithm
 function shuffleArray(array) {
@@ -1165,13 +1166,15 @@ const getTopicSpecificImage = (code, topicBadge) => {
   };
 };
 
-export default function DrillPage({ params }) {
+function DrillContent({ params }) {
   const resolvedParams = use(params);
   const router = useRouter();
   const searchParams = useSearchParams();
   const moduleKey = searchParams.get('module') || 'mekanika';
 
-  const qId = resolvedParams?.questionId || '1';
+  const rawQId = resolvedParams?.questionId || '1';
+  const parsedNum = parseInt(rawQId, 10);
+  const qId = isNaN(parsedNum) || parsedNum < 1 ? '1' : parsedNum > 10 ? '10' : String(parsedNum);
 
   const [activeQuestionsMap, setActiveQuestionsMap] = useState({});
   const [userAnswers, setUserAnswers] = useState({});
@@ -1352,46 +1355,38 @@ export default function DrillPage({ params }) {
 
     const earnedPoints = basePoints + accuracyBonus + streakBonus;
 
-    // 2. Save earned points & stats to localStorage for Leaderboard
+    // 2. Save earned points, streak & stats via userStats helper
     if (typeof window !== 'undefined') {
       try {
-        const savedStats = localStorage.getItem('astrolearn-user-stats');
-        let prevPoints = 0;
-        if (savedStats) {
-          const parsed = JSON.parse(savedStats);
-          prevPoints = parsed.points || 0;
+        const streakResult = recordQuizCompletionStreak(earnedPoints);
+        if (streakResult && streakResult.streak) {
+          setStreakCount(streakResult.streak);
         }
-        const updatedPoints = prevPoints + earnedPoints;
-        localStorage.setItem(
-          'astrolearn-user-stats',
-          JSON.stringify({
-            points: updatedPoints,
-            lastEarned: earnedPoints,
-            lastBase: basePoints,
-            lastAccuracyBonus: accuracyBonus,
-            lastStreakBonus: streakBonus,
-            lastCorrectCount: correctCount,
-            lastTotalSet: totalQuestionsInSet,
-            lastDate: new Date().toISOString(),
-          })
-        );
+
+        // Record topic progress (0 to 100%)
+        const savedProg = JSON.parse(localStorage.getItem('astrolearn-topic-progress') || '{}');
+        const scorePercent = Math.round((correctCount / totalQuestionsInSet) * 100);
+        savedProg[moduleKey] = Math.max(savedProg[moduleKey] || 0, scorePercent);
+        localStorage.setItem('astrolearn-topic-progress', JSON.stringify(savedProg));
+
+        // Record topic mastery for Heatmap
+        const savedMastery = JSON.parse(localStorage.getItem('astrolearn-topic-mastery') || '{}');
+        const topicName = activeQuestionsMap['1']?.module || 'Mekanika Benda Langit';
+        if (!savedMastery[topicName]) {
+          savedMastery[topicName] = { easy: null, medium: null, hard: null, olympiad: null };
+        }
+        savedMastery[topicName].easy = scorePercent;
+        savedMastery[topicName].medium = Math.max(0, scorePercent - 15);
+        localStorage.setItem('astrolearn-topic-mastery', JSON.stringify(savedMastery));
+
+        window.dispatchEvent(new Event('storage'));
       } catch (e) {
-        console.error(e);
+        console.error('Error saving quiz completion stats:', e);
       }
     }
 
     // 3. Mark as submitted to show full results & explanations
     setIsSubmitted(true);
-
-    // 4. Increment streak counter (+1)
-    const newStreak = streakCount + 1;
-    setStreakCount(newStreak);
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('astrolearn_streak', newStreak.toString());
-      localStorage.setItem('astrolearn_last_quiz_date', new Date().toISOString().split('T')[0]);
-    }
-
-    // 5. Show Streak Pop-up Modal
     setShowStreakModal(true);
   };
 
@@ -1854,5 +1849,24 @@ export default function DrillPage({ params }) {
         </div>
       )}
     </div>
+  );
+}
+
+export default function DrillPage({ params }) {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen flex flex-col items-center justify-center gap-3 text-white">
+          <span className="material-symbols-outlined text-secondary text-5xl animate-spin">
+            progress_activity
+          </span>
+          <p className="font-code-md text-sm text-on-surface-variant">
+            Memuat Kuis & Soal Astronomi...
+          </p>
+        </div>
+      }
+    >
+      <DrillContent params={params} />
+    </Suspense>
   );
 }
