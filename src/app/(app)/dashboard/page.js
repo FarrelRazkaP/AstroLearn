@@ -15,6 +15,7 @@ export default function DashboardPage() {
   const [userName, setUserName] = useState('Pengguna AstroLearn');
   const [userStats, setUserStats] = useState({ points: 0, streak: 0, level: 1 });
   const [streakInfo, setStreakInfo] = useState({ isCompletedToday: false, cooldown: { formatted: '00:00:00' } });
+  const [topicProgress, setTopicProgress] = useState({});
 
   const refreshStats = () => {
     const stats = getUserStats();
@@ -26,6 +27,10 @@ export default function DashboardPage() {
       if (rawUser) {
         const p = JSON.parse(rawUser);
         if (p.name || p.fullName) setUserName(p.name || p.fullName);
+      }
+      const savedProg = localStorage.getItem('astrolearn-topic-progress');
+      if (savedProg) {
+        setTopicProgress(JSON.parse(savedProg));
       }
     } catch (e) {}
   };
@@ -122,7 +127,7 @@ export default function DashboardPage() {
                 </span>
               </div>
               <p className="font-body-lg text-body-lg text-on-surface-variant">
-                Satu langkah lebih dekat memahami semesta hari ini. Total AstroPoints: <strong className="text-accent_gold">{userStats.points || 1250} Poin</strong>
+                Satu langkah lebih dekat memahami semesta hari ini. Total AstroPoints: <strong className="text-accent_gold">{(userStats.points || 0).toLocaleString()} Poin</strong>
               </p>
 
               {/* Level Progress Bar */}
@@ -190,23 +195,23 @@ export default function DashboardPage() {
                 <div className="space-y-xs">
                   <div className="flex justify-between font-body-md text-body-md">
                     <span className="text-on-surface">Mekanika</span>
-                    <span className="font-code-md text-code-md text-secondary">72%</span>
+                    <span className="font-code-md text-code-md text-secondary">{topicProgress.mekanika || 0}%</span>
                   </div>
-                  <ProgressBar value={72} variant="gradient" />
+                  <ProgressBar value={topicProgress.mekanika || 0} variant="gradient" />
                 </div>
                 <div className="space-y-xs">
                   <div className="flex justify-between font-body-md text-body-md">
                     <span className="text-on-surface">Astrofisika</span>
-                    <span className="font-code-md text-code-md text-tertiary">45%</span>
+                    <span className="font-code-md text-code-md text-tertiary">{topicProgress.astrofisika || 0}%</span>
                   </div>
-                  <ProgressBar value={45} variant="tertiary" />
+                  <ProgressBar value={topicProgress.astrofisika || 0} variant="tertiary" />
                 </div>
                 <div className="space-y-xs">
                   <div className="flex justify-between font-body-md text-body-md">
                     <span className="text-on-surface">Tata Surya</span>
-                    <span className="font-code-md text-code-md text-primary">100%</span>
+                    <span className="font-code-md text-code-md text-primary">{topicProgress['tata-surya'] || 0}%</span>
                   </div>
-                  <ProgressBar value={100} variant="primary" />
+                  <ProgressBar value={topicProgress['tata-surya'] || 0} variant="primary" />
                 </div>
               </div>
 

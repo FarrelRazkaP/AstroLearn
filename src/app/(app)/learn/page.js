@@ -1,14 +1,14 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 
-const topics = [
+const BASE_TOPICS = [
   {
     id: 'mekanika',
     title: 'Mekanika Benda Langit',
     icon: 'auto_awesome',
     modules: 12,
-    progress: 72,
     href: '/learn/mekanika/kepler',
   },
   {
@@ -16,7 +16,6 @@ const topics = [
     title: 'Astrofisika Stellar',
     icon: 'star',
     modules: 8,
-    progress: 45,
     href: '/learn/astrofisika/hr-diagram',
   },
   {
@@ -24,7 +23,6 @@ const topics = [
     title: 'Sistem Tata Surya',
     icon: 'public',
     modules: 10,
-    progress: 100,
     href: '/learn/tata-surya/overview',
   },
   {
@@ -32,7 +30,6 @@ const topics = [
     title: 'Astronomi Bola',
     icon: 'language',
     modules: 6,
-    progress: 20,
     href: '/learn/astronomi-bola/koordinat',
   },
   {
@@ -40,12 +37,24 @@ const topics = [
     title: 'Instrumen & Observasi',
     icon: 'camera_alt',
     modules: 5,
-    progress: 10,
     href: '/learn/observasi/teleskop',
   },
 ];
 
 export default function LearningHubPage() {
+  const [topicProgress, setTopicProgress] = useState({});
+
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem('astrolearn-topic-progress');
+      if (saved) {
+        setTopicProgress(JSON.parse(saved));
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  }, []);
+
   return (
     <div className="flex flex-col gap-lg max-w-7xl mx-auto">
       {/* Header */}
@@ -79,36 +88,39 @@ export default function LearningHubPage() {
 
       {/* Topics Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-gutter">
-        {topics.map((topic) => (
-          <Link
-            key={topic.id}
-            href={topic.href}
-            className="glass-card rounded-xl p-lg flex flex-col justify-between min-h-[220px] hover:border-secondary transition-all group cursor-pointer"
-          >
-            <div>
-              <div className="flex justify-between items-start mb-md">
-                <div className="w-12 h-12 rounded-xl bg-primary-container flex items-center justify-center text-primary group-hover:scale-110 transition-transform">
-                  <span className="material-symbols-outlined text-2xl">{topic.icon}</span>
+        {BASE_TOPICS.map((topic) => {
+          const progress = topicProgress[topic.id] || 0;
+          return (
+            <Link
+              key={topic.id}
+              href={topic.href}
+              className="glass-card rounded-xl p-lg flex flex-col justify-between min-h-[220px] hover:border-secondary transition-all group cursor-pointer"
+            >
+              <div>
+                <div className="flex justify-between items-start mb-md">
+                  <div className="w-12 h-12 rounded-xl bg-primary-container flex items-center justify-center text-primary group-hover:scale-110 transition-transform">
+                    <span className="material-symbols-outlined text-2xl">{topic.icon}</span>
+                  </div>
+                  <span className="px-3 py-1 bg-surface-container-high rounded-full font-code-md text-xs text-on-surface-variant border border-white/5">
+                    {topic.modules} Modul
+                  </span>
                 </div>
-                <span className="px-3 py-1 bg-surface-container-high rounded-full font-code-md text-xs text-on-surface-variant border border-white/5">
-                  {topic.modules} Modul
-                </span>
+
+                <h3 className="font-headline-md text-headline-md font-bold text-on-surface mb-xs">{topic.title}</h3>
               </div>
 
-              <h3 className="font-headline-md text-headline-md font-bold text-on-surface mb-xs">{topic.title}</h3>
-            </div>
-
-            <div className="mt-4 pt-4 border-t border-white/5">
-              <div className="flex justify-between items-center mb-2">
-                <span className="font-label-sm text-label-sm text-on-surface-variant">Progres</span>
-                <span className="font-code-md text-code-md text-secondary">{topic.progress}%</span>
+              <div className="mt-4 pt-4 border-t border-white/5">
+                <div className="flex justify-between items-center mb-2">
+                  <span className="font-label-sm text-label-sm text-on-surface-variant">Progres</span>
+                  <span className="font-code-md text-code-md text-secondary">{progress}%</span>
+                </div>
+                <div className="w-full h-2 bg-surface-container-highest rounded-full overflow-hidden">
+                  <div className="h-full progress-gradient rounded-full" style={{ width: `${progress}%` }} />
+                </div>
               </div>
-              <div className="w-full h-2 bg-surface-container-highest rounded-full overflow-hidden">
-                <div className="h-full progress-gradient rounded-full" style={{ width: `${topic.progress}%` }} />
-              </div>
-            </div>
-          </Link>
-        ))}
+            </Link>
+          );
+        })}
       </div>
     </div>
   );
