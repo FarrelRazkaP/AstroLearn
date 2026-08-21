@@ -3,11 +3,15 @@
 import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { BADGE_CATALOG } from '@/lib/userStats';
+
+const DEFAULT_AVATAR =
+  'https://lh3.googleusercontent.com/aida-public/AB6AXuAvnKwhe4rOXVCXw5tDtyiB5FKfdt6K4hKgDPP5aBhfnbJoVO1vvpa4jOWFT5Q5tFG2iiZ2EOtbdjMLUah106tRrdK6EHcXBFGAWA_P-cP8iO_fRcJW0uJeCoUKMyGsgbnAqq6LvN9xp1pB0q7fzw6CSx9B7lLJ2xrKSuYpbqskeyTO0kM15mmW81OoUWQX2jKVvmM8kujhyU0cJQMWiu_MM82nMz6etm5D03WKq2-Qqw0NVpy-bTme9Q';
 
 export default function PublicProfilePage() {
   const params = useParams();
   const router = useRouter();
-  const username = params?.username;
+  const rawUsername = params?.username;
 
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -15,30 +19,73 @@ export default function PublicProfilePage() {
   const [copiedToast, setCopiedToast] = useState(false);
 
   useEffect(() => {
-    if (!username) return;
+    if (!rawUsername) return;
 
     async function fetchProfile() {
       setLoading(true);
       setErrorMsg('');
 
+      const cleanParam = decodeURIComponent(rawUsername).toLowerCase().trim();
+      let found = null;
+
+      // 1. Try fetching from API
       try {
-        const res = await fetch(`/api/user/${encodeURIComponent(username)}`);
+        const res = await fetch(`/api/user/${encodeURIComponent(cleanParam)}`);
         const data = await res.json();
-
-        if (!res.ok) {
-          throw new Error(data.error || 'Profil tidak ditemukan');
+        if (res.ok && data.profile) {
+          found = data.profile;
         }
+      } catch (err) {}
 
-        setProfile(data.profile);
-      } catch (err) {
-        setErrorMsg(err.message);
-      } finally {
-        setLoading(false);
+      // 2. Fallback to LocalStorage registered users / active session
+      if (!found) {
+        try {
+          const activeUser = JSON.parse(localStorage.getItem('astrolearn-user') || '{}');
+          const localReg = JSON.parse(localStorage.getItem('astrolearn-registered-users') || '[]');
+
+          const candidates = [...localReg];
+          if (activeUser.id && !candidates.some((c) => c.id === activeUser.id)) {
+            candidates.push(activeUser);
+          }
+
+          const match = candidates.find((u) => {
+            return (
+              (u.username && u.username.toLowerCase() === cleanParam) ||
+              (u.fullName && u.fullName.toLowerCase().replace(/\s+/g, '') === cleanParam) ||
+              (u.fullName && u.fullName.toLowerCase() === cleanParam) ||
+              u.id === cleanParam
+            );
+          });
+
+          if (match) {
+            const unlockedNames = new Set(match.badges || []);
+            const badgeDetails = BADGE_CATALOG.map((b) => ({
+              ...b,
+              isUnlocked:
+                unlockedNames.has(b.name) ||
+                (match.points || 0) >= (b.id === 'penjelajah_awal' ? 50 : b.id === 'pemburu_nebula' ? 500 : 1000),
+            }));
+
+            found = {
+              ...match,
+              globalRank: match.globalRank || 1,
+              badges: badgeDetails,
+              unlockedCount: badgeDetails.filter((b) => b.isUnlocked).length,
+            };
+          }
+        } catch (e) {}
       }
+
+      if (found) {
+        setProfile(found);
+      } else {
+        setErrorMsg('Profil astronomer tidak ditemukan!');
+      }
+      setLoading(false);
     }
 
     fetchProfile();
-  }, [username]);
+  }, [rawUsername]);
 
   const handleCopyLink = () => {
     if (typeof window !== 'undefined') {
@@ -71,7 +118,7 @@ export default function PublicProfilePage() {
           Profil Tidak Ditemukan
         </h2>
         <p className="font-body-md text-sm text-on-surface-variant mb-6">
-          Astronomer dengan username &quot;{username}&quot; belum terdaftar di database akademi.
+          Astronomer &quot;{rawUsername}&quot; belum terdaftar di akademi.
         </p>
         <Link
           href="/leaderboard"
@@ -82,9 +129,6 @@ export default function PublicProfilePage() {
       </div>
     );
   }
-
-  const DEFAULT_AVATAR =
-    'https://lh3.googleusercontent.com/aida-public/AB6AXuAvnKwhe4rOXVCXw5tDtyiB5FKfdt6K4hKgDPP5aBhfnbJoVO1vvpa4jOWFT5Q5tFG2iiZ2EOtbdjMLUah106tRrdK6EHcXBFGAWA_P-cP8iO_fRcJW0uJeCoUKMyGsgbnAqq6LvN9xp1pB0q7fzw6CSx9B7lLJ2xrKSuYpbqskeyTO0kM15mmW81OoUWQX2jKVvmM8kujhyU0cJQMWiu_MM82nMz6etm5D03WKq2-Qqw0NVpy-bTme9Q';
 
   return (
     <div className="relative min-h-screen max-w-5xl mx-auto pb-24 text-on-background">
@@ -109,9 +153,8 @@ export default function PublicProfilePage() {
               className="w-full h-full object-cover"
             />
           </div>
-          {/* Rank Badge Indicator */}
           <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full bg-secondary text-on-secondary font-code-md text-xs font-extrabold shadow-lg border border-white/20 whitespace-nowrap">
-            Rank #{profile.globalRank} Global
+            Rank #{profile.globalRank || 1} Global
           </div>
         </div>
 
@@ -172,7 +215,7 @@ export default function PublicProfilePage() {
                   <span className="font-body-md text-on-surface-variant">Peringkat Global</span>
                 </div>
                 <span className="font-headline-md text-headline-md font-extrabold text-accent_gold">
-                  #{profile.globalRank}
+                  #{profile.globalRank || 1}
                 </span>
               </div>
 
@@ -202,7 +245,7 @@ export default function PublicProfilePage() {
                   <span className="font-body-md text-on-surface-variant">Badge Terbuka</span>
                 </div>
                 <span className="font-headline-md text-headline-md font-extrabold text-tertiary">
-                  {profile.unlockedCount} Badge
+                  {profile.unlockedCount || 0} Badge
                 </span>
               </div>
             </div>
@@ -218,7 +261,7 @@ export default function PublicProfilePage() {
                 <span>Galeri Badge Koleksi</span>
               </h2>
               <span className="font-code-md text-xs text-secondary font-bold">
-                {profile.unlockedCount} / {profile.badges ? profile.badges.length : 0} Terbuka
+                {profile.unlockedCount || 0} / {profile.badges ? profile.badges.length : 0} Terbuka
               </span>
             </div>
 

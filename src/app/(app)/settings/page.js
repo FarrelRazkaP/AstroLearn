@@ -64,6 +64,17 @@ export default function SettingsPage() {
 
       localStorage.setItem('astrolearn-user', JSON.stringify(updatedUser));
       localStorage.setItem('astrolearn-avatar', avatarUrl);
+
+      // Sync with local registered users registry
+      try {
+        const localReg = JSON.parse(localStorage.getItem('astrolearn-registered-users') || '[]');
+        const updatedReg = localReg.map((u) => (u.id === updatedUser.id || u.email === updatedUser.email ? { ...u, ...updatedUser } : u));
+        if (!updatedReg.some((u) => u.id === updatedUser.id)) {
+          updatedReg.push(updatedUser);
+        }
+        localStorage.setItem('astrolearn-registered-users', JSON.stringify(updatedReg));
+      } catch (e) {}
+
       window.dispatchEvent(new Event('storage'));
 
       // 2. Persist to Backend Database API

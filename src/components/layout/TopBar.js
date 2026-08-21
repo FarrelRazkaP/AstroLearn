@@ -80,7 +80,7 @@ export default function TopBar() {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  // Search User Database
+  // Search User Database (API + Local Storage Fallback)
   useEffect(() => {
     if (!showSearchModal) return;
 
@@ -88,16 +88,58 @@ export default function TopBar() {
     setIsSearching(true);
 
     const timer = setTimeout(async () => {
+      const q = searchQuery.toLowerCase().trim();
+      let combined = [];
+
+      // 1. Fetch from API
       try {
         const res = await fetch(`/api/user/search?q=${encodeURIComponent(searchQuery)}`);
         const data = await res.json();
-        if (isMounted && data.success) {
-          setSearchResults(data.results || []);
+        if (data.success && data.results) {
+          combined = [...data.results];
         }
       } catch (err) {
-        console.error('Search user error:', err);
-      } finally {
-        if (isMounted) setIsSearching(false);
+        console.error('Search API error:', err);
+      }
+
+      // 2. Merge from Local Storage registered users
+      try {
+        const localReg = JSON.parse(localStorage.getItem('astrolearn-registered-users') || '[]');
+        const activeUser = JSON.parse(localStorage.getItem('astrolearn-user') || '{}');
+
+        const allLocal = [...localReg];
+        if (activeUser.id && !allLocal.some((u) => u.id === activeUser.id)) {
+          allLocal.push(activeUser);
+        }
+
+        const filteredLocal = allLocal.filter((u) => {
+          if (!q) return true;
+          return (
+            (u.fullName && u.fullName.toLowerCase().includes(q)) ||
+            (u.username && u.username.toLowerCase().includes(q)) ||
+            (u.email && u.email.toLowerCase().includes(q))
+          );
+        });
+
+        filteredLocal.forEach((lu, idx) => {
+          if (!combined.some((c) => c.id === lu.id || (c.username && c.username === lu.username))) {
+            combined.push({
+              id: lu.id || 'usr_' + idx,
+              fullName: lu.fullName || lu.username || 'Astronomer',
+              username: lu.username || (lu.fullName ? lu.fullName.toLowerCase().replace(/\s+/g, '') : 'astronomer'),
+              points: lu.points || 0,
+              level: lu.level || 1,
+              streak: lu.streak || 0,
+              avatarUrl: lu.avatarUrl || DEFAULT_AVATAR,
+              rank: lu.rank || combined.length + 1,
+            });
+          }
+        });
+      } catch (e) {}
+
+      if (isMounted) {
+        setSearchResults(combined.slice(0, 10));
+        setIsSearching(false);
       }
     }, 200);
 
@@ -192,7 +234,7 @@ export default function TopBar() {
               ) : (
                 searchResults.map((usr) => (
                   <div
-                    key={usr.id}
+                    key={usr.id || usr.username}
                     onClick={() => handleSelectUser(usr.username || usr.fullName)}
                     className="p-2.5 rounded-xl bg-surface-container-lowest/60 hover:bg-surface-container border border-white/5 hover:border-primary/40 transition-all cursor-pointer flex items-center justify-between group"
                   >
@@ -209,7 +251,7 @@ export default function TopBar() {
                           {usr.fullName}
                         </span>
                         <span className="font-code-md text-[10px] text-on-surface-variant">
-                          @{usr.username || 'user'} • Rank #{usr.rank || '-'}
+                          @{usr.username || 'user'} • Rank #{usr.rank || '1'}
                         </span>
                       </div>
                     </div>
