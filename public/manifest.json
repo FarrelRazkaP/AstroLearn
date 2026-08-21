@@ -1,0 +1,17 @@
+{
+  "short_name": "AstroLearn",
+  "name": "AstroLearn - Akademi Astronomi Interaktif",
+  "description": "Platform pembelajaran astronomi interaktif, simulasi orbit 3D, kuis, dan leaderboard global.",
+  "icons": [
+    {
+      "src": "/favicon.ico",
+      "sizes": "64x64 32x32 24x24 16x16",
+      "type": "image/x-icon"
+    }
+  ],
+  "start_url": "/dashboard",
+  "background_color": "#0a0e27",
+  "theme_color": "#0a0e27",
+  "display": "standalone",
+  "orientation": "portrait"
+}

@@ -1,0 +1,155 @@
+/* ===== Practice Hub Styles ===== */
+
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
+  position: relative;
+}
+
+.header {
+  margin-bottom: var(--space-sm);
+}
+
+.title {
+  font-family: var(--font-ui);
+  font-size: var(--fs-display-lg);
+  line-height: var(--lh-display-lg);
+  font-weight: 800;
+  color: var(--primary);
+  margin-bottom: var(--space-xs);
+}
+
+.subtitle {
+  font-family: var(--font-ui);
+  font-size: var(--fs-body-lg);
+  color: var(--on-surface-variant);
+}
+
+/* ===== Quick Stats Panel ===== */
+.statsPanel {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-md);
+  border-radius: var(--radius-xl);
+  padding: var(--space-md);
+}
+
+@media (max-width: 640px) {
+  .statsPanel {
+    grid-template-columns: 1fr;
+  }
+}
+
+.statItem {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+}
+
+.statIcon {
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radius-lg);
+  background: var(--primary-container);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--primary);
+}
+
+.statTitle {
+  font-family: var(--font-mono);
+  font-size: var(--fs-label-sm);
+  color: var(--on-surface-variant);
+}
+
+.statVal {
+  font-family: var(--font-ui);
+  font-size: var(--fs-headline-md);
+  font-weight: 700;
+  color: var(--on-surface);
+}
+
+/* ===== Bento Grid ===== */
+.bentoGrid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-gutter);
+}
+
+@media (min-width: 1024px) {
+  .bentoGrid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.bentoCard {
+  border-radius: var(--radius-xl);
+  padding: var(--space-lg);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 280px;
+  cursor: pointer;
+  transition: transform 0.2s ease-out, box-shadow 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.bentoCard:hover {
+  box-shadow: 0 10px 30px rgba(201, 191, 253, 0.15);
+  border-top-color: rgba(255, 255, 255, 0.3);
+}
+
+.cardHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: var(--space-md);
+}
+
+.cardIcon {
+  width: 56px;
+  height: 56px;
+  border-radius: var(--radius-xl);
+  background: rgba(74, 66, 119, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.cardTitle {
+  font-family: var(--font-ui);
+  font-size: var(--fs-headline-md);
+  font-weight: 700;
+  color: var(--on-surface);
+  margin-bottom: var(--space-xs);
+}
+
+.cardDesc {
+  font-family: var(--font-ui);
+  font-size: var(--fs-body-md);
+  line-height: 1.6;
+  color: var(--on-surface-variant);
+}
+
+.cardFooter {
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  padding-top: var(--space-sm);
+  margin-top: var(--space-md);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.cardFooterText {
+  font-family: var(--font-mono);
+  font-size: var(--fs-label-sm);
+}
+
+/* Featured glow */
+.featuredGlow {
+  box-shadow: 0 0 30px rgba(201, 191, 253, 0.2);
+  border: 1px solid rgba(201, 191, 253, 0.3);
+}

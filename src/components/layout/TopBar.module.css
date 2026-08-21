@@ -1,0 +1,101 @@
+.topBar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: var(--topbar-height, 64px);
+  background: rgba(74, 66, 119, 0.4);
+  backdrop-filter: blur(24px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: var(--shadow-xl);
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 var(--space-md, 16px);
+}
+
+@media (min-width: 769px) {
+  .topBar {
+    padding-left: calc(var(--sidebar-width, 256px) + var(--space-md, 16px));
+  }
+}
+
+.leftContent {
+  display: flex;
+  align-items: center;
+}
+
+.desktopTitle {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--on-surface);
+  margin: 0;
+  display: none;
+}
+
+.mobileLogo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--primary);
+}
+
+.mobileLogo span {
+  font-size: 1.5rem;
+}
+
+.mobileLogo h2 {
+  font-size: 1.125rem;
+  font-weight: bold;
+  margin: 0;
+}
+
+@media (min-width: 769px) {
+  .desktopTitle {
+    display: block;
+  }
+  .mobileLogo {
+    display: none;
+  }
+}
+
+.rightContent {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.iconButton {
+  background: transparent;
+  border: none;
+  color: var(--on-surface-variant);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  transition: background-color 0.2s;
+}
+
+.iconButton:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: var(--on-surface);
+}
+
+.avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 1px solid var(--outline-variant);
+  background: var(--surface-container);
+  color: var(--on-surface);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 0.875rem;
+  margin-left: 8px;
+}

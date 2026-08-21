@@ -1,0 +1,52 @@
+.container {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+}
+
+.track {
+    background-color: var(--surface-container-highest);
+    border-radius: var(--radius-full);
+    overflow: hidden;
+    flex-grow: 1;
+}
+
+.sm {
+    height: 8px;
+}
+
+.md {
+    height: 12px;
+}
+
+.fill {
+    border-radius: var(--radius-full);
+    height: 100%;
+    transition: width 0.5s ease;
+}
+
+.fillGradient {
+    background: linear-gradient(90deg, #4a4277 0%, #c9bffd 100%);
+}
+
+.fillPrimary {
+    background-color: var(--primary);
+}
+
+.fillSecondary {
+    background-color: var(--secondary);
+}
+
+.fillTertiary {
+    background-color: var(--tertiary);
+}
+
+.fillComplete {
+    box-shadow: 0 0 10px rgba(193,196,230,0.5);
+}
+
+.label {
+    font: var(--code-md);
+    color: inherit;
+}

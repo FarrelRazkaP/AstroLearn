@@ -1,0 +1,19 @@
+.appShell {
+  min-height: 100vh;
+  display: flex;
+}
+
+.mainContent {
+  flex: 1;
+  margin-top: var(--topbar-height, 64px);
+  padding: var(--space-margin, 16px);
+  padding-bottom: 96px; /* space for bottom nav on mobile */
+  overflow-y: auto;
+}
+
+@media (min-width: 769px) {
+  .mainContent {
+    margin-left: var(--sidebar-width, 256px);
+    padding-bottom: var(--space-margin, 16px);
+  }
+}

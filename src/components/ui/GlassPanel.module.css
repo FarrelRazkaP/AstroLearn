@@ -1,0 +1,4 @@
+.base {
+    border-radius: var(--radius-xl);
+    transition: all 0.3s ease;
+}

@@ -1,0 +1,173 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  padding: var(--space-xl);
+  max-width: 1440px;
+  margin: 0 auto;
+}
+
+.breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+  margin-bottom: var(--space-md);
+}
+
+.tabs {
+  display: flex;
+  gap: var(--space-sm);
+  margin-top: var(--space-lg);
+  margin-bottom: var(--space-xl);
+}
+
+.tab {
+  padding: 8px 16px;
+  border-radius: var(--radius-lg);
+  background: transparent;
+  color: var(--on-surface-variant);
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.2s ease, color 0.2s ease;
+  font-weight: 500;
+  border-bottom: 2px solid transparent;
+}
+
+.tab:hover {
+  background-color: rgba(255, 255, 255, 0.05);
+  color: var(--on-surface);
+}
+
+.activeTab {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: var(--on-surface);
+  border-bottom: 2px solid var(--secondary);
+}
+
+.mainContent {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xl);
+}
+
+@media (min-width: 1024px) {
+  .mainContent {
+    flex-direction: row;
+  }
+  
+  .leftColumn {
+    flex: 1;
+    min-width: 0;
+  }
+  
+  .rightColumn {
+    width: 288px;
+    flex-shrink: 0;
+  }
+}
+
+.contentCanvas {
+  display: flex;
+  flex-direction: column;
+}
+
+.simulationContainer {
+  margin: var(--space-xl) 0;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.simulationAspect {
+  position: relative;
+  width: 100%;
+  padding-bottom: 56.25%; /* 16:9 Aspect Ratio */
+}
+
+.simulationAspect > div:first-child {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+}
+
+.simulationLabel {
+  position: absolute;
+  bottom: var(--space-md);
+  left: var(--space-md);
+  background-color: rgba(var(--surface-container-lowest-rgb, 0, 0, 0), 0.8);
+  backdrop-filter: blur(8px);
+  padding: 4px 12px;
+  border-radius: var(--radius-full);
+}
+
+.formulaBlock {
+  background-color: rgba(var(--surface-container-rgb, 255, 255, 255), 0.04);
+  border-radius: var(--radius-lg);
+  padding: var(--space-md);
+  border-left: 3px solid var(--secondary);
+  margin-bottom: var(--space-xl);
+}
+
+.tocList {
+  list-style: none;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+}
+
+.tocItem {
+  padding: 8px 0 8px 12px;
+  border-radius: var(--radius-lg);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border-left: 2px solid transparent;
+}
+
+.tocItem:hover {
+  color: var(--on-surface);
+}
+
+.tocActive {
+  background-color: rgba(255, 255, 255, 0.05);
+  border-left: 2px solid var(--secondary);
+}
+
+.navigation {
+  display: flex;
+  justify-content: space-between;
+  margin-top: var(--space-xl);
+  padding-top: var(--space-lg);
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.btnOutline {
+  padding: 10px 20px;
+  border-radius: var(--radius-full);
+  border: 1px solid var(--outline);
+  background: transparent;
+  color: var(--on-surface);
+  cursor: pointer;
+  font-weight: 600;
+  transition: background-color 0.2s ease;
+}
+
+.btnOutline:hover {
+  background-color: rgba(255, 255, 255, 0.05);
+}
+
+.btnPrimary {
+  padding: 10px 20px;
+  border-radius: var(--radius-full);
+  border: none;
+  background-color: var(--secondary);
+  color: var(--on-secondary);
+  cursor: pointer;
+  font-weight: 600;
+  transition: background-color 0.2s ease;
+}
+
+.btnPrimary:hover {
+  opacity: 0.9;
+}

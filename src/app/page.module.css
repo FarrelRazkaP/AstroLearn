@@ -1,0 +1,267 @@
+/* ===== Landing Page Styles ===== */
+
+.landingPage {
+  min-height: 100vh;
+  position: relative;
+  overflow: hidden;
+}
+
+/* ===== Shader Background Wrapper ===== */
+.shaderBg {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+}
+
+/* ===== Navbar ===== */
+.navbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 50;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 var(--space-margin);
+  height: var(--topbar-height);
+  background: rgba(74, 66, 119, 0.2);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  transition: all 0.3s ease;
+}
+
+.navLogo {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+.navLogoIcon {
+  font-size: 28px;
+  color: var(--primary);
+}
+
+.navLogoText {
+  font-family: var(--font-ui);
+  font-size: var(--fs-headline-md);
+  font-weight: var(--fw-headline-md);
+  color: var(--primary);
+}
+
+.navLinks {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  list-style: none;
+}
+
+.navLink {
+  color: var(--on-surface-variant);
+  text-decoration: none;
+  font-family: var(--font-ui);
+  font-size: var(--fs-body-md);
+  line-height: var(--lh-body-md);
+  transition: color 0.2s ease;
+  cursor: pointer;
+}
+
+.navLink:hover {
+  color: var(--on-surface);
+}
+
+.navActions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+.navIconBtn {
+  padding: var(--space-base);
+  border-radius: var(--radius-full);
+  background: transparent;
+  border: none;
+  color: var(--primary);
+  cursor: pointer;
+  transition: background 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.navIconBtn:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+@media (max-width: 768px) {
+  .navLinks {
+    display: none;
+  }
+}
+
+/* ===== Hero Section ===== */
+.hero {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: calc(var(--topbar-height) + var(--space-lg)) var(--space-margin) var(--space-xl);
+  text-align: center;
+}
+
+.heroBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-base);
+  padding: var(--space-base) var(--space-md);
+  border-radius: var(--radius-full);
+  font-family: var(--font-mono);
+  font-size: var(--fs-label-sm);
+  font-weight: var(--fw-label-sm);
+  color: var(--on-surface-variant);
+  margin-bottom: var(--space-md);
+  animation: fadeIn 0.8s ease forwards;
+}
+
+.heroBadgeIcon {
+  font-size: 16px;
+  color: var(--secondary);
+}
+
+.heroTitle {
+  font-family: var(--font-ui);
+  font-size: var(--fs-display-lg);
+  line-height: var(--lh-display-lg);
+  font-weight: var(--fw-display-lg);
+  letter-spacing: var(--ls-display-lg);
+  color: var(--primary);
+  margin-bottom: var(--space-md);
+  animation: fadeIn 0.8s ease 0.2s forwards;
+  opacity: 0;
+}
+
+.heroHighlight {
+  background: linear-gradient(90deg, #F9D423 0%, #FF4E50 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.heroSubtitle {
+  font-family: var(--font-ui);
+  font-size: var(--fs-body-lg);
+  line-height: var(--lh-body-lg);
+  color: var(--on-surface-variant);
+  max-width: 600px;
+  margin-bottom: var(--space-lg);
+  animation: fadeIn 0.8s ease 0.4s forwards;
+  opacity: 0;
+}
+
+.heroCTA {
+  display: flex;
+  gap: var(--space-sm);
+  animation: fadeIn 0.8s ease 0.6s forwards;
+  opacity: 0;
+}
+
+@media (max-width: 768px) {
+  .heroTitle {
+    font-size: 32px;
+    line-height: 40px;
+  }
+  .heroSubtitle {
+    font-size: var(--fs-body-md);
+  }
+  .heroCTA {
+    flex-direction: column;
+    width: 100%;
+    max-width: 300px;
+  }
+}
+
+/* ===== Persona Cards Section ===== */
+.personaSection {
+  position: relative;
+  z-index: 1;
+  padding: var(--space-xl) var(--space-margin);
+  text-align: center;
+}
+
+.personaSectionTitle {
+  font-family: var(--font-ui);
+  font-size: var(--fs-headline-lg);
+  line-height: var(--lh-headline-lg);
+  font-weight: var(--fw-headline-lg);
+  color: var(--primary);
+  margin-bottom: var(--space-lg);
+}
+
+.personaGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: var(--space-gutter);
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.personaCard {
+  border-radius: var(--radius-xl);
+  padding: var(--space-md);
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.personaCard:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 30px rgba(201, 191, 253, 0.1);
+  border-top-color: rgba(255, 255, 255, 0.3);
+}
+
+.personaIcon {
+  width: 64px;
+  height: 64px;
+  border-radius: var(--radius-xl);
+  background: var(--primary-container);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto var(--space-sm);
+}
+
+.personaIcon .material-symbols-outlined {
+  font-size: 32px;
+  color: var(--primary);
+}
+
+.personaCardTitle {
+  font-family: var(--font-ui);
+  font-size: var(--fs-body-lg);
+  line-height: var(--lh-body-lg);
+  font-weight: 600;
+  color: var(--on-surface);
+  margin-bottom: var(--space-base);
+}
+
+.personaCardDesc {
+  font-family: var(--font-ui);
+  font-size: var(--fs-body-md);
+  line-height: var(--lh-body-md);
+  color: var(--on-surface-variant);
+}
+
+/* ===== Footer ===== */
+.footer {
+  position: relative;
+  z-index: 1;
+  text-align: center;
+  padding: var(--space-lg) var(--space-margin);
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  color: var(--on-surface-variant);
+  font-size: var(--fs-label-sm);
+}

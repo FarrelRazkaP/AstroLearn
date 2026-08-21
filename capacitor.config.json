@@ -1,0 +1,11 @@
+{
+  "appId": "com.astrolearn.app",
+  "appName": "AstroLearn",
+  "webDir": "out",
+  "bundledWebRuntime": false,
+  "android": {
+    "allowMixedContent": true,
+    "captureInput": true,
+    "webContentsDebuggingEnabled": true
+  }
+}
