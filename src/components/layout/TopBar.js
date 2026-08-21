@@ -251,7 +251,7 @@ export default function TopBar() {
                           {usr.fullName}
                         </span>
                         <span className="font-code-md text-[10px] text-on-surface-variant">
-                          @{usr.username || 'user'} • Rank #{usr.rank || '1'}
+                          @{usr.username || 'user'} • Rank {(usr.points || 0) > 0 ? '#' + (usr.rank || 1) : '-'}
                         </span>
                       </div>
                     </div>

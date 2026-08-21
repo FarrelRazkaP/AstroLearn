@@ -154,7 +154,7 @@ export default function PublicProfilePage() {
             />
           </div>
           <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full bg-secondary text-on-secondary font-code-md text-xs font-extrabold shadow-lg border border-white/20 whitespace-nowrap">
-            Rank #{profile.globalRank || 1} Global
+            Rank { (profile.points || 0) > 0 ? (typeof profile.globalRank === 'string' && profile.globalRank.startsWith('#') ? profile.globalRank : '#' + profile.globalRank) : '-' } Global
           </div>
         </div>
 
@@ -215,7 +215,7 @@ export default function PublicProfilePage() {
                   <span className="font-body-md text-on-surface-variant">Peringkat Global</span>
                 </div>
                 <span className="font-headline-md text-headline-md font-extrabold text-accent_gold">
-                  #{profile.globalRank || 1}
+                  { (profile.points || 0) > 0 ? (typeof profile.globalRank === 'string' && profile.globalRank.startsWith('#') ? profile.globalRank : '#' + profile.globalRank) : '-' }
                 </span>
               </div>
 

@@ -22,9 +22,11 @@ export async function GET(req, { params }) {
       );
     }
 
-    // Calculate global rank
+    // Calculate global rank (if user has 0 points, rank is '-')
+    const hasPoints = (user.points || 0) > 0;
     const sorted = [...dbUsers].sort((a, b) => (b.points || 0) - (a.points || 0));
-    const globalRank = sorted.findIndex((u) => u.id === user.id) + 1;
+    const calculatedRank = sorted.findIndex((u) => u.id === user.id) + 1;
+    const displayRank = hasPoints && calculatedRank > 0 ? `#${calculatedRank}` : '-';
 
     // Filter unlocked badges details
     const unlockedBadgeNames = new Set(user.badges || []);
@@ -39,7 +41,8 @@ export async function GET(req, { params }) {
       success: true,
       profile: {
         ...publicProfile,
-        globalRank: globalRank > 0 ? globalRank : sorted.length,
+        points: user.points || 0,
+        globalRank: displayRank,
         badges: badgeDetails,
         unlockedCount: badgeDetails.filter((b) => b.isUnlocked).length,
       },
