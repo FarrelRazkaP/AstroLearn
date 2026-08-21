@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 
 const navItems = [
   { icon: 'dashboard', label: 'Dashboard', href: '/dashboard' },
@@ -20,27 +20,50 @@ const roleLabels = {
   competitor: 'COMPETITION TRACK',
   student: 'ADVANCED STUDENT',
   teacher: 'EDUCATOR',
+  pemula: 'AMATEUR ASTRONOMER',
+  kompetisi: 'COMPETITION TRACK',
+  mahasiswa: 'ADVANCED STUDENT',
+  guru: 'EDUCATOR',
 };
 
 export default function Sidebar() {
   const pathname = usePathname();
+  const router = useRouter();
   const [roleLabel, setRoleLabel] = useState('AMATEUR ASTRONOMER');
+  const [username, setUsername] = useState('');
 
   useEffect(() => {
-    const savedRole = localStorage.getItem('astrolearn-role');
-    if (savedRole && roleLabels[savedRole]) {
-      setRoleLabel(roleLabels[savedRole]);
+    const savedUser = localStorage.getItem('astrolearn-user');
+    if (savedUser) {
+      try {
+        const u = JSON.parse(savedUser);
+        if (u.fullName || u.username) setUsername(u.fullName || u.username);
+        if (u.role && roleLabels[u.role]) setRoleLabel(roleLabels[u.role]);
+      } catch (e) {}
     }
   }, []);
 
+  const handleLogout = () => {
+    localStorage.removeItem('astrolearn-user');
+    localStorage.removeItem('astrolearn-role');
+    localStorage.removeItem('astrolearn-stats');
+    window.dispatchEvent(new Event('storage'));
+    router.push('/login');
+  };
+
   return (
     <nav className="hidden md:flex flex-col fixed left-0 top-0 h-full w-64 p-sm bg-surface-container/60 dark:bg-surface-container/60 backdrop-blur-2xl border-r border-white/10 shadow-2xl transition-all duration-300 ease-in-out z-40">
-      <div className="px-md py-lg mb-4">
+      <div className="px-md py-lg mb-2">
         <div className="flex items-center gap-sm mb-xs">
           <span className="material-symbols-outlined text-primary text-3xl">rocket_launch</span>
           <h1 className="font-headline-md text-headline-md font-bold text-primary">AstroLearn</h1>
         </div>
         <p className="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">{roleLabel}</p>
+        {username && (
+          <p className="font-code-md text-xs text-secondary font-bold mt-1 truncate">
+            👋 {username}
+          </p>
+        )}
       </div>
 
       <div className="flex-1 overflow-y-auto pr-2 space-y-2">
@@ -70,6 +93,17 @@ export default function Sidebar() {
             </Link>
           );
         })}
+      </div>
+
+      {/* Logout Button */}
+      <div className="pt-2 border-t border-white/10 mt-auto">
+        <button
+          onClick={handleLogout}
+          className="w-full flex items-center gap-md px-4 py-3 text-error hover:bg-error/10 rounded-xl transition-all cursor-pointer font-body-md font-semibold"
+        >
+          <span className="material-symbols-outlined text-xl">logout</span>
+          <span>Keluar (Logout)</span>
+        </button>
       </div>
     </nav>
   );

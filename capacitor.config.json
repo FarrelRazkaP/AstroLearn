@@ -3,6 +3,10 @@
   "appName": "AstroLearn",
   "webDir": "out",
   "bundledWebRuntime": false,
+  "server": {
+    "url": "https://astro-learn-eight.vercel.app",
+    "cleartext": true
+  },
   "android": {
     "allowMixedContent": true,
     "captureInput": true,

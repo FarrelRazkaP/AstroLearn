@@ -19,21 +19,63 @@ export default function LoginPage() {
     setIsSubmitting(true);
 
     try {
-      const res = await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ identity, password }),
-      });
+      let loggedUser = null;
 
-      const data = await res.json();
+      try {
+        const res = await fetch('/api/auth/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ identity, password }),
+        });
 
-      if (!res.ok) {
-        throw new Error(data.error || 'Gagal masuk ke akun!');
+        const data = await res.json();
+        if (res.ok && data.user) {
+          loggedUser = data.user;
+        } else if (data.error) {
+          throw new Error(data.error);
+        }
+      } catch (apiErr) {
+        // Fallback for Vercel/Client-Side offline persistence
+        const cleanIdent = identity.toLowerCase().trim();
+        const localRegistered = JSON.parse(localStorage.getItem('astrolearn-registered-users') || '[]');
+        const match = localRegistered.find(
+          (u) =>
+            (u.email && u.email.toLowerCase() === cleanIdent) ||
+            (u.username && u.username.toLowerCase() === cleanIdent) ||
+            (u.fullName && u.fullName.toLowerCase() === cleanIdent)
+        );
+
+        if (match && match.password === password) {
+          const { password: _, ...safeUser } = match;
+          loggedUser = safeUser;
+        } else if (cleanIdent === 'astronot' || cleanIdent === 'astronot@astrolearn.com') {
+          if (password === 'password123') {
+            loggedUser = {
+              id: 'usr_astronot',
+              fullName: 'Penjelajah Kosmik',
+              username: 'astronot',
+              email: 'astronot@astrolearn.com',
+              role: 'pemula',
+              points: 0,
+              level: 1,
+              streak: 0,
+              badges: [],
+            };
+          } else {
+            throw new Error('Kata sandi salah!');
+          }
+        } else {
+          throw new Error(apiErr.message || 'Identitas atau kata sandi tidak ditemukan!');
+        }
+      }
+
+      if (!loggedUser) {
+        throw new Error('Identitas atau kata sandi tidak cocok!');
       }
 
       // Save authenticated user session
-      localStorage.setItem('astrolearn-user', JSON.stringify(data.user));
-      localStorage.setItem('astrolearn-role', data.user.role || 'pemula');
+      localStorage.setItem('astrolearn-user', JSON.stringify(loggedUser));
+      localStorage.setItem('astrolearn-role', loggedUser.role || 'pemula');
       window.dispatchEvent(new Event('storage'));
 
       router.push('/dashboard');
@@ -96,7 +138,7 @@ export default function LoginPage() {
                 required
                 value={identity}
                 onChange={(e) => setIdentity(e.target.value)}
-                placeholder="farrel atau farrel@astrolearn.com"
+                placeholder="astronot atau neil@apollo.space"
                 className="w-full bg-surface-container-lowest/80 border border-white/10 rounded-xl pl-10 pr-4 py-3 text-white text-body-md focus:border-secondary focus:ring-1 focus:ring-secondary transition-all outline-none"
               />
             </div>
@@ -108,12 +150,6 @@ export default function LoginPage() {
               <label className="font-code-md text-xs text-on-surface-variant uppercase tracking-wider">
                 Kata Sandi
               </label>
-              <Link
-                href="/forgot-password"
-                className="font-code-md text-xs text-secondary hover:underline transition-all"
-              >
-                Lupa Kata Sandi?
-              </Link>
             </div>
             <div className="relative flex items-center">
               <span className="material-symbols-outlined absolute left-3 text-on-surface-variant text-xl pointer-events-none">
@@ -159,7 +195,7 @@ export default function LoginPage() {
         {/* Demo Credentials Info Box */}
         <div className="w-full mt-6 p-3 rounded-xl bg-surface-container-high/60 border border-white/10 text-xs font-code-md text-on-surface-variant flex flex-col gap-1">
           <span className="text-secondary font-bold">🔑 Demo Akun Default AstroLearn:</span>
-          <span>• Identity: <code className="text-white">astronot</code> / <code className="text-white">astronot@astrolearn.com</code></span>
+          <span>• Username: <code className="text-white">astronot</code></span>
           <span>• Password: <code className="text-white">password123</code></span>
         </div>
 
