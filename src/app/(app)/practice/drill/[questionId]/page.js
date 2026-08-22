@@ -1394,6 +1394,34 @@ function DrillContent({ params }) {
         savedMastery[topicName].medium = Math.max(0, scorePercent - 15);
         localStorage.setItem('astrolearn-topic-mastery', JSON.stringify(savedMastery));
 
+        // Record tryout & radar chart scores
+        const existingScores = JSON.parse(localStorage.getItem('astrolearn-tryout-scores') || '{}');
+        const catMap = {
+          mekanika: 'Mekanika',
+          astrofisika: 'Astrofisika',
+          astronomi_bola: 'BolaLangit',
+          tata_surya: 'TataSurya',
+          observasi: 'Instrumen',
+        };
+        const targetCat = catMap[moduleKey] || 'Mekanika';
+        existingScores[targetCat] = scorePercent;
+
+        if (existingScores.Mekanika === undefined) existingScores.Mekanika = 90;
+        if (existingScores.Astrofisika === undefined) existingScores.Astrofisika = 85;
+        if (existingScores.BolaLangit === undefined) existingScores.BolaLangit = 70;
+        if (existingScores.TataSurya === undefined) existingScores.TataSurya = 75;
+        if (existingScores.Instrumen === undefined) existingScores.Instrumen = 60;
+
+        const sum =
+          existingScores.Mekanika +
+          existingScores.Astrofisika +
+          existingScores.BolaLangit +
+          existingScores.TataSurya +
+          existingScores.Instrumen;
+        existingScores.totalScore = Math.round(sum / 5);
+
+        localStorage.setItem('astrolearn-tryout-scores', JSON.stringify(existingScores));
+
         sessionStorage.setItem(`astrolearn-quiz-submitted-${moduleKey}`, 'true');
         window.dispatchEvent(new Event('storage'));
       } catch (e) {
@@ -1401,7 +1429,7 @@ function DrillContent({ params }) {
       }
     }
 
-    // 3. Mark as submitted to show full results & explanations
+    // 3. Mark as submitted & show modal
     setIsSubmitted(true);
     setShowStreakModal(true);
   };
@@ -1857,9 +1885,12 @@ function DrillContent({ params }) {
 
             <button
               className="w-full py-3.5 rounded-xl bg-primary text-on-primary font-bold shadow-[0_0_25px_rgba(193,196,230,0.5)] hover:scale-[1.03] active:scale-95 transition-all cursor-pointer text-base"
-              onClick={() => setShowStreakModal(false)}
+              onClick={() => {
+                setShowStreakModal(false);
+                router.push('/practice/tryout/result');
+              }}
             >
-              Lihat Hasil & Pembahasan 📖
+              Lihat Hasil & Evaluasi Radar Chart 📖
             </button>
           </div>
         </div>
