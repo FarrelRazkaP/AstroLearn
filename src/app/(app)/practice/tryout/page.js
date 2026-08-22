@@ -11,6 +11,7 @@ export default function TryoutArenaPage() {
   const [selectedAnswers, setSelectedAnswers] = useState({});
   const [flagged, setFlagged] = useState({});
   const [timeLeft, setTimeLeft] = useState(5025); // 01:23:45 in seconds
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
@@ -37,105 +38,107 @@ export default function TryoutArenaPage() {
     setFlagged({ ...flagged, [currentQuestion]: !flagged[currentQuestion] });
   };
 
-  const handleSubmit = () => {
+  const handleSubmitClick = () => {
+    setShowConfirmModal(true);
+  };
+
+  const handleConfirmSubmit = () => {
     const totalAnswered = Object.keys(selectedAnswers).length;
-    if (confirm(`Anda telah menjawab ${totalAnswered} dari 40 soal. Yakin ingin mengumpulkan seluruh jawaban Tryout?`)) {
-      // Calculate category scores based on user's answers vs correct key
-      const categoryStats = {
-        Mekanika: { correct: 0, total: 0 },
-        Astrofisika: { correct: 0, total: 0 },
-        BolaLangit: { correct: 0, total: 0 },
-        TataSurya: { correct: 0, total: 0 },
-        Instrumen: { correct: 0, total: 0 },
-      };
+    // Calculate category scores based on user's answers vs correct key
+    const categoryStats = {
+      Mekanika: { correct: 0, total: 0 },
+      Astrofisika: { correct: 0, total: 0 },
+      BolaLangit: { correct: 0, total: 0 },
+      TataSurya: { correct: 0, total: 0 },
+      Instrumen: { correct: 0, total: 0 },
+    };
 
-      let totalCorrect = 0;
-      let totalIncorrect = 0;
+    let totalCorrect = 0;
+    let totalIncorrect = 0;
 
-      osnQuestions.forEach((q) => {
-        let cat = 'Mekanika';
-        if (q.topic.includes('Mekanika')) cat = 'Mekanika';
-        else if (q.topic.includes('Astrofisika') || q.topic.includes('Radiasi') || q.topic.includes('Fotometri')) cat = 'Astrofisika';
-        else if (q.topic.includes('Astronomi Bola')) cat = 'BolaLangit';
-        else if (q.topic.includes('Tata Surya')) cat = 'TataSurya';
-        else if (q.topic.includes('Instrumen')) cat = 'Instrumen';
+    osnQuestions.forEach((q) => {
+      let cat = 'Mekanika';
+      if (q.topic.includes('Mekanika')) cat = 'Mekanika';
+      else if (q.topic.includes('Astrofisika') || q.topic.includes('Radiasi') || q.topic.includes('Fotometri')) cat = 'Astrofisika';
+      else if (q.topic.includes('Astronomi Bola')) cat = 'BolaLangit';
+      else if (q.topic.includes('Tata Surya')) cat = 'TataSurya';
+      else if (q.topic.includes('Instrumen')) cat = 'Instrumen';
 
-        categoryStats[cat].total += 1;
+      categoryStats[cat].total += 1;
 
-        const userAns = selectedAnswers[q.id];
-        if (userAns) {
-          if (userAns === q.correct) {
-            categoryStats[cat].correct += 1;
-            totalCorrect += 1;
-          } else {
-            totalIncorrect += 1;
-          }
-        }
-      });
-
-      // Calculate Tryout Points & Medals
-      const basePoints = Math.max(0, totalCorrect * 150 - totalIncorrect * 25);
-      const accuracyPercent = Math.round((totalCorrect / osnQuestions.length) * 100);
-
-      let medal = 'Peserta'; // 'Gold' | 'Silver' | 'Bronze' | 'Peserta'
-      let medalBonus = 0;
-      if (accuracyPercent >= 90) {
-        medal = 'Gold';
-        medalBonus = accuracyPercent === 100 ? 2000 : 1500;
-      } else if (accuracyPercent >= 75) {
-        medal = 'Silver';
-        medalBonus = 1000;
-      } else if (accuracyPercent >= 60) {
-        medal = 'Bronze';
-        medalBonus = 500;
-      }
-
-      const totalEarnedTryoutPoints = basePoints + medalBonus;
-
-      const getPercent = (catKey) => {
-        const item = categoryStats[catKey];
-        if (!item || item.total === 0) return 75;
-        return Math.round((item.correct / item.total) * 100);
-      };
-
-      // Save Tryout Scores for Result Page
-      const scoresData = {
-        Mekanika: getPercent('Mekanika'),
-        Astrofisika: getPercent('Astrofisika'),
-        BolaLangit: getPercent('BolaLangit'),
-        TataSurya: getPercent('TataSurya'),
-        Instrumen: getPercent('Instrumen'),
-        totalCorrect,
-        totalIncorrect,
-        totalScore: accuracyPercent,
-        earnedPoints: totalEarnedTryoutPoints,
-        basePoints,
-        medalBonus,
-        medal,
-      };
-
-      // Record quiz completion to calculate streak and AstroPoints
-      if (typeof window !== 'undefined') {
-        try {
-          const streakResult = recordQuizCompletionStreak(totalEarnedTryoutPoints);
-          const stats = streakResult.stats || getUserStats();
-          stats.lastEarned = totalEarnedTryoutPoints;
-          stats.lastBase = basePoints;
-          stats.lastMedalBonus = medalBonus;
-          stats.lastMedal = medal;
-          stats.lastDate = new Date().toISOString();
-
-          localStorage.setItem('astrolearn-user-stats', JSON.stringify(stats));
-          window.dispatchEvent(new Event('storage'));
-        } catch (e) {
-          console.error(e);
+      const userAns = selectedAnswers[q.id];
+      if (userAns) {
+        if (userAns === q.correct) {
+          categoryStats[cat].correct += 1;
+          totalCorrect += 1;
+        } else {
+          totalIncorrect += 1;
         }
       }
+    });
 
-      localStorage.setItem('astrolearn-tryout-answers', JSON.stringify(selectedAnswers));
-      localStorage.setItem('astrolearn-tryout-scores', JSON.stringify(scoresData));
-      router.push('/practice/tryout/result');
+    // Calculate Tryout Points & Medals
+    const basePoints = Math.max(0, totalCorrect * 150 - totalIncorrect * 25);
+    const accuracyPercent = Math.round((totalCorrect / osnQuestions.length) * 100);
+
+    let medal = 'Peserta'; // 'Gold' | 'Silver' | 'Bronze' | 'Peserta'
+    let medalBonus = 0;
+    if (accuracyPercent >= 90) {
+      medal = 'Gold';
+      medalBonus = accuracyPercent === 100 ? 2000 : 1500;
+    } else if (accuracyPercent >= 75) {
+      medal = 'Silver';
+      medalBonus = 1000;
+    } else if (accuracyPercent >= 60) {
+      medal = 'Bronze';
+      medalBonus = 500;
     }
+
+    const totalEarnedTryoutPoints = basePoints + medalBonus;
+
+    const getPercent = (catKey) => {
+      const item = categoryStats[catKey];
+      if (!item || item.total === 0) return 75;
+      return Math.round((item.correct / item.total) * 100);
+    };
+
+    // Save Tryout Scores for Result Page
+    const scoresData = {
+      Mekanika: getPercent('Mekanika'),
+      Astrofisika: getPercent('Astrofisika'),
+      BolaLangit: getPercent('BolaLangit'),
+      TataSurya: getPercent('TataSurya'),
+      Instrumen: getPercent('Instrumen'),
+      totalCorrect,
+      totalIncorrect,
+      totalScore: accuracyPercent,
+      earnedPoints: totalEarnedTryoutPoints,
+      basePoints,
+      medalBonus,
+      medal,
+    };
+
+    // Record quiz completion to calculate streak and AstroPoints
+    if (typeof window !== 'undefined') {
+      try {
+        const streakResult = recordQuizCompletionStreak(totalEarnedTryoutPoints);
+        const stats = streakResult.stats || getUserStats();
+        stats.lastEarned = totalEarnedTryoutPoints;
+        stats.lastBase = basePoints;
+        stats.lastMedalBonus = medalBonus;
+        stats.lastMedal = medal;
+        stats.lastDate = new Date().toISOString();
+
+        localStorage.setItem('astrolearn-user-stats', JSON.stringify(stats));
+        window.dispatchEvent(new Event('storage'));
+      } catch (e) {
+        console.error(e);
+      }
+    }
+
+    localStorage.setItem('astrolearn-tryout-answers', JSON.stringify(selectedAnswers));
+    localStorage.setItem('astrolearn-tryout-scores', JSON.stringify(scoresData));
+    router.push('/practice/tryout/result');
   };
 
   const answeredCount = Object.keys(selectedAnswers).length;
@@ -344,7 +347,7 @@ export default function TryoutArenaPage() {
 
           {/* Submit Exam Button */}
           <button
-            onClick={handleSubmit}
+            onClick={handleSubmitClick}
             className="w-full mt-6 py-3.5 px-6 rounded-xl bg-secondary-fixed text-on-secondary-fixed font-bold font-headline-md hover:brightness-110 active:scale-95 transition-all shadow-[0_0_20px_rgba(201,191,253,0.3)] flex items-center justify-center gap-2 cursor-pointer"
           >
             <span className="material-symbols-outlined text-xl">send</span>
@@ -352,6 +355,43 @@ export default function TryoutArenaPage() {
           </button>
         </aside>
       </main>
+
+      {/* Confirmation Modal */}
+      {showConfirmModal && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setShowConfirmModal(false)} />
+          <div className="relative bg-surface-container-high border border-white/10 rounded-2xl p-6 md:p-8 max-w-md w-full shadow-2xl animate-in zoom-in-95 duration-200">
+            <div className="flex flex-col items-center text-center gap-4">
+              <div className="w-16 h-16 rounded-full bg-secondary-container flex items-center justify-center border border-secondary/20 shadow-[0_0_30px_rgba(201,191,253,0.4)]">
+                <span className="material-symbols-outlined text-3xl text-secondary">
+                  fact_check
+                </span>
+              </div>
+              <h2 className="font-headline-md text-headline-md font-bold text-white tracking-tight">
+                Kumpulkan Tryout?
+              </h2>
+              <p className="font-body-md text-body-md text-on-surface-variant">
+                Anda telah menjawab <strong className="text-secondary">{answeredCount}</strong> dari 40 soal. Waktu tersisa Anda adalah <strong>{formatTime(timeLeft)}</strong>. Apakah Anda yakin ingin mengakhiri dan mengumpulkan jawaban sekarang?
+              </p>
+              
+              <div className="flex gap-3 w-full mt-4">
+                <button
+                  onClick={() => setShowConfirmModal(false)}
+                  className="flex-1 px-4 py-3 rounded-xl border border-white/10 font-bold hover:bg-white/5 transition-all text-on-surface cursor-pointer"
+                >
+                  Batal
+                </button>
+                <button
+                  onClick={handleConfirmSubmit}
+                  className="flex-1 px-4 py-3 rounded-xl bg-secondary text-on-secondary font-bold hover:brightness-110 shadow-[0_0_20px_rgba(201,191,253,0.4)] transition-all cursor-pointer"
+                >
+                  Ya, Kumpulkan
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

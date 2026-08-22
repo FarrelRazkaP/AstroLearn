@@ -10,6 +10,12 @@ export default function ModulePage() {
   const [activeSection, setActiveSection] = useState('eksentrisitas');
   const [quizAnswers, setQuizAnswers] = useState({});
   const [submittedQuiz, setSubmittedQuiz] = useState(false);
+  const [showResultModal, setShowResultModal] = useState(false);
+
+  const handleSubmitQuiz = () => {
+    setSubmittedQuiz(true);
+    setShowResultModal(true);
+  };
 
   const handleOptionSelect = (questionId, optionIndex) => {
     setQuizAnswers((prev) => ({ ...prev, [questionId]: optionIndex }));
@@ -469,19 +475,20 @@ export default function ModulePage() {
               {/* Submit & Reset Button */}
               <div className="flex justify-between items-center mt-2">
                 <button
-                  onClick={() => setSubmittedQuiz(true)}
-                  disabled={Object.keys(quizAnswers).length === 0}
+                  onClick={handleSubmitQuiz}
+                  disabled={Object.keys(quizAnswers).length === 0 || submittedQuiz}
                   className="bg-accent_gold text-black font-bold px-6 py-3 rounded-lg uppercase tracking-wider hover:brightness-110 transition-all disabled:opacity-50 cursor-pointer"
                 >
-                  Submit Jawaban
+                  {submittedQuiz ? 'Sudah Dikumpulkan' : 'Submit Jawaban'}
                 </button>
 
                 {submittedQuiz && (
-                  <span className="text-accent_green font-bold text-body-md">
-                    🎉 Kuis Selesai! Skor Anda: {
-                      (quizAnswers['q1'] === 0 ? 50 : 0) + (quizAnswers['q2'] === 0 ? 50 : 0)
-                    } / 100
-                  </span>
+                  <button
+                    onClick={() => setShowResultModal(true)}
+                    className="text-accent_green font-bold text-body-md underline hover:text-green-400 transition-colors cursor-pointer"
+                  >
+                    Lihat Hasil Kuis
+                  </button>
                 )}
               </div>
             </div>
@@ -584,6 +591,52 @@ export default function ModulePage() {
           </div>
         </div>
       </div>
+
+      {/* Result Modal Overlay */}
+      {showResultModal && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-black/80 backdrop-blur-md" onClick={() => setShowResultModal(false)} />
+          <div className="relative bg-surface-container border border-accent_cyan/30 rounded-3xl p-6 md:p-10 max-w-lg w-full shadow-[0_0_50px_rgba(0,255,255,0.15)] animate-in zoom-in-95 duration-500 flex flex-col items-center text-center">
+            
+            {/* Sparkles Decoration */}
+            <div className="absolute -top-6 -right-6 text-accent_gold animate-pulse text-4xl">✨</div>
+            <div className="absolute -bottom-4 -left-4 text-accent_cyan animate-pulse text-3xl delay-150">🌟</div>
+
+            <div className="w-24 h-24 rounded-full bg-accent_green/20 flex items-center justify-center border-2 border-accent_green shadow-[0_0_30px_rgba(74,222,128,0.4)] mb-6">
+              <span className="material-symbols-outlined text-5xl text-accent_green">
+                workspace_premium
+              </span>
+            </div>
+
+            <h2 className="font-headline-lg text-headline-lg font-extrabold text-white tracking-tight mb-2">
+              Kuis Selesai!
+            </h2>
+            <p className="font-body-md text-body-md text-on-surface-variant mb-6">
+              Selamat! Anda telah menyelesaikan kuis pemahaman modul <strong>Hukum Kepler I</strong>.
+            </p>
+
+            <div className="w-full bg-surface-container-lowest border border-white/10 rounded-2xl p-6 mb-8 flex flex-col items-center">
+              <span className="font-code-md text-xs text-on-surface-variant uppercase tracking-widest font-bold mb-2">
+                Skor Akhir
+              </span>
+              <div className="flex items-baseline gap-2">
+                <span className="font-display-lg text-6xl font-black text-accent_cyan">
+                  {(quizAnswers['q1'] === 0 ? 50 : 0) + (quizAnswers['q2'] === 0 ? 50 : 0)}
+                </span>
+                <span className="font-headline-md text-2xl text-on-surface-variant font-bold">/100</span>
+              </div>
+            </div>
+
+            <button
+              onClick={() => setShowResultModal(false)}
+              className="w-full py-4 rounded-xl bg-secondary-fixed text-on-secondary-fixed font-bold font-headline-md hover:brightness-110 active:scale-95 transition-all shadow-[0_0_20px_rgba(201,191,253,0.3)] flex items-center justify-center gap-2 cursor-pointer"
+            >
+              <span className="material-symbols-outlined">school</span>
+              <span>Lanjut Belajar</span>
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
