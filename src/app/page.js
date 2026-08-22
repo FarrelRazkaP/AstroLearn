@@ -1,9 +1,31 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import ShaderCanvas from '@/components/effects/ShaderCanvas';
 
+const DEFAULT_AVATAR =
+  'https://lh3.googleusercontent.com/aida-public/AB6AXuAvnKwhe4rOXVCXw5tDtyiB5FKfdt6K4hKgDPP5aBhfnbJoVO1vvpa4jOWFT5Q5tFG2iiZ2EOtbdjMLUah106tRrdK6EHcXBFGAWA_P-cP8iO_fRcJW0uJeCoUKMyGsgbnAqq6LvN9xp1pB0q7fzw6CSx9B7lLJ2xrKSuYpbqskeyTO0kM15mmW81OoUWQX2jKVvmM8kujhyU0cJQMWiu_MM82nMz6etm5D03WKq2-Qqw0NVpy-bTme9Q';
+
 export default function LandingPage() {
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [userAvatar, setUserAvatar] = useState(DEFAULT_AVATAR);
+
+  useEffect(() => {
+    try {
+      const rawUser = localStorage.getItem('astrolearn-user');
+      if (rawUser) {
+        const u = JSON.parse(rawUser);
+        if (u.id || u.fullName || u.email) {
+          setIsLoggedIn(true);
+          if (u.avatarUrl) setUserAvatar(u.avatarUrl);
+        }
+      }
+      const savedAvatar = localStorage.getItem('astrolearn-avatar');
+      if (savedAvatar) setUserAvatar(savedAvatar);
+    } catch (e) {}
+  }, []);
+
   return (
     <div className="bg-background text-on-background font-body-md overflow-x-hidden min-h-screen">
       {/* Navbar */}
@@ -16,32 +38,47 @@ export default function LandingPage() {
           <Link href="/" className="text-primary font-bold cursor-pointer active:scale-95 duration-200 hover:bg-white/10 transition-colors p-2 rounded">
             Home
           </Link>
-          <Link href="/learn" className="text-on-surface-variant cursor-pointer active:scale-95 duration-200 hover:bg-white/10 transition-colors p-2 rounded">
-            Programs
-          </Link>
-          <Link href="/about" className="text-on-surface-variant cursor-pointer active:scale-95 duration-200 hover:bg-white/10 transition-colors p-2 rounded">
-            About
+          <Link href="/onboarding" className="text-on-surface-variant cursor-pointer active:scale-95 duration-200 hover:bg-white/10 transition-colors p-2 rounded">
+            Jalur Belajar
           </Link>
         </div>
 
         <div className="flex space-x-sm items-center">
-          <button className="p-2 rounded-full hover:bg-white/10 text-primary transition-colors cursor-pointer" title="Notifikasi">
-            <span className="material-symbols-outlined">notifications</span>
-          </button>
           <button className="p-2 rounded-full hover:bg-white/10 text-primary transition-colors cursor-pointer" title="Mode Gelap">
-            <span className="material-symbols-outlined">dark_mode</span>
+            <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1" }}>dark_mode</span>
           </button>
-          <Link
-            href="/profile"
-            title="Lihat Profil & Pengaturan"
-            className="w-10 h-10 rounded-full bg-surface-container overflow-hidden border border-outline-variant hover:border-secondary transition-all cursor-pointer active:scale-95 duration-200 block shadow-md hover:shadow-[0_0_15px_rgba(201,191,253,0.4)]"
-          >
-            <img
-              alt="User profile avatar"
-              className="w-full h-full object-cover"
-              src="https://lh3.googleusercontent.com/aida-public/AB6AXuAdLKfzfaAfA-yOmQOxx0G_RLWhpEDN_i7dvB2Ol1072d7IQ0hUw4bIpMYuMgmeas3wP_jgmDXuAaaMUI0FfbSkq9IlhpIu9mxeqpuaOdjDtvwCG8bZpC-VQaIi2ugJnJRKAelD-LhQSij4t1WyuFWDkSmMbmQML999jGJwTBDG0MB2iUIewNl09hVHoHC21w7fTX3jnKpWcaDpk7-co3QnXNbR67Aw7QcKM2LP_8J7WcbcXrfjI06H6Q"
-            />
-          </Link>
+
+          {isLoggedIn ? (
+            <Link
+              href="/dashboard"
+              title="Ke Dashboard Utama Saya"
+              className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-surface-container border border-outline-variant hover:border-secondary transition-all cursor-pointer shadow-md"
+            >
+              <div className="w-7 h-7 rounded-full overflow-hidden border border-primary">
+                <img
+                  alt="User profile avatar"
+                  className="w-full h-full object-cover"
+                  src={userAvatar || DEFAULT_AVATAR}
+                />
+              </div>
+              <span className="font-code-md text-xs font-bold text-white hidden sm:inline">Dashboard</span>
+            </Link>
+          ) : (
+            <div className="flex items-center gap-2">
+              <Link
+                href="/login"
+                className="px-4 py-2 rounded-xl text-xs font-bold text-on-surface-variant hover:text-white hover:bg-white/10 transition-all cursor-pointer"
+              >
+                Masuk
+              </Link>
+              <Link
+                href="/onboarding"
+                className="px-4 py-2 rounded-xl bg-secondary text-on-secondary font-bold text-xs hover:brightness-110 transition-all shadow-md cursor-pointer"
+              >
+                Daftar Akun
+              </Link>
+            </div>
+          )}
         </div>
       </header>
 
