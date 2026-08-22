@@ -4,6 +4,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import OrbitSimulation from '@/components/effects/OrbitSimulation';
 import Math from '@/components/ui/Math';
+import { getUserStats, saveUserStats } from '@/lib/userStats';
 
 export default function ModulePage() {
   const [activeTab, setActiveTab] = useState('rumus');
