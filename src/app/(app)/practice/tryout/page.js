@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { osnQuestions } from '@/data/osnQuestions';
 import { getUserStats, recordQuizCompletionStreak } from '@/lib/userStats';
