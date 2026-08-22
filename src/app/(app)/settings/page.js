@@ -102,10 +102,44 @@ export default function SettingsPage() {
     if (file) {
       const reader = new FileReader();
       reader.onload = (event) => {
-        const url = event.target.result;
-        setAvatarUrl(url);
-        localStorage.setItem('astrolearn-avatar', url);
-        window.dispatchEvent(new Event('storage'));
+        const rawUrl = event.target.result;
+
+        // Compress image using HTML5 Canvas to 256x256 (~25KB) to guarantee LocalStorage quota is never exceeded!
+        const img = new Image();
+        img.onload = () => {
+          try {
+            const canvas = document.createElement('canvas');
+            canvas.width = 256;
+            canvas.height = 256;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, 256, 256);
+            const compressedUrl = canvas.toDataURL('image/jpeg', 0.85);
+
+            setAvatarUrl(compressedUrl);
+
+            // Immediately save to LocalStorage session
+            localStorage.setItem('astrolearn-avatar', compressedUrl);
+            const rawUser = localStorage.getItem('astrolearn-user');
+            if (rawUser) {
+              const u = JSON.parse(rawUser);
+              u.avatarUrl = compressedUrl;
+              localStorage.setItem('astrolearn-user', JSON.stringify(u));
+            }
+            window.dispatchEvent(new Event('storage'));
+          } catch (err) {
+            console.error('Error compressing/saving avatar:', err);
+            // Fallback if canvas fails
+            setAvatarUrl(rawUrl);
+            localStorage.setItem('astrolearn-avatar', rawUrl);
+            window.dispatchEvent(new Event('storage'));
+          }
+        };
+        img.onerror = () => {
+          setAvatarUrl(rawUrl);
+          localStorage.setItem('astrolearn-avatar', rawUrl);
+          window.dispatchEvent(new Event('storage'));
+        };
+        img.src = rawUrl;
       };
       reader.readAsDataURL(file);
     }

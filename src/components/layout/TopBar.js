@@ -54,16 +54,22 @@ export default function TopBar() {
   ]);
 
   useEffect(() => {
-    const saved = localStorage.getItem('astrolearn-avatar');
-    if (saved) setAvatarUrl(saved);
-
-    const handleStorage = () => {
-      const updated = localStorage.getItem('astrolearn-avatar');
-      if (updated) setAvatarUrl(updated);
+    const loadAvatar = () => {
+      const saved = localStorage.getItem('astrolearn-avatar');
+      const rawUser = localStorage.getItem('astrolearn-user');
+      if (saved) {
+        setAvatarUrl(saved);
+      } else if (rawUser) {
+        try {
+          const u = JSON.parse(rawUser);
+          if (u.avatarUrl) setAvatarUrl(u.avatarUrl);
+        } catch (e) {}
+      }
     };
 
-    window.addEventListener('storage', handleStorage);
-    return () => window.removeEventListener('storage', handleStorage);
+    loadAvatar();
+    window.addEventListener('storage', loadAvatar);
+    return () => window.removeEventListener('storage', loadAvatar);
   }, []);
 
   // Close dropdowns on outside click
