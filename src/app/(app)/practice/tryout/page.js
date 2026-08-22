@@ -92,6 +92,12 @@ export default function TryoutArenaPage() {
 
       const totalEarnedTryoutPoints = basePoints + medalBonus;
 
+      const getPercent = (catKey) => {
+        const item = categoryStats[catKey];
+        if (!item || item.total === 0) return 75;
+        return Math.round((item.correct / item.total) * 100);
+      };
+
       // Save Tryout Scores for Result Page
       const scoresData = {
         Mekanika: getPercent('Mekanika'),

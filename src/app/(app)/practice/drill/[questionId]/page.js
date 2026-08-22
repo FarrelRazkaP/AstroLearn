@@ -1169,7 +1169,7 @@ const getTopicSpecificImage = (code, topicBadge) => {
 function DrillContent({ params }) {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const moduleKey = searchParams.get('module') || 'mekanika';
+  const [moduleKey, setModuleKey] = useState('mekanika');
 
   const [qId, setQId] = useState('1');
   const [activeQuestionsMap, setActiveQuestionsMap] = useState({});
@@ -1179,7 +1179,14 @@ function DrillContent({ params }) {
   const [streakCount, setStreakCount] = useState(7);
   const [isSubmitted, setIsSubmitted] = useState(false);
 
-  // Safely unwrap params without SSR throwing
+  // Safely unwrap searchParams & params without SSR throwing
+  useEffect(() => {
+    if (searchParams) {
+      const m = searchParams.get('module');
+      if (m) setModuleKey(m);
+    }
+  }, [searchParams]);
+
   useEffect(() => {
     if (params) {
       Promise.resolve(params).then((p) => {
