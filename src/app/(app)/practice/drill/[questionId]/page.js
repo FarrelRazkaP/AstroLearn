@@ -1468,6 +1468,10 @@ function DrillContent({ params }) {
     }
   });
 
+  const isPerfect = correctCount === totalQuestionsInSet;
+  const isGreat = correctCount >= Math.ceil(totalQuestionsInSet * 0.8) && !isPerfect;
+  const isPass = correctCount >= Math.ceil(totalQuestionsInSet * 0.6) && !isGreat && !isPerfect;
+
   return (
     <div className="max-w-5xl mx-auto flex flex-col gap-lg min-h-screen text-[#e2e8f0]">
       {/* Quiz Top Bar Header */}
